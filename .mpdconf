@@ -1,0 +1,24 @@
+bind_to_address "localhost"
+port "6600"
+music_directory "~/Music"
+playlist_directory "~/.mpd/playlists"
+db_file	"~/.mpd/mpd.db"
+log_file "~/.mpd/mpd.log"
+pid_file "~/.mpd/mpd.pid"
+state_file "~/.mpd/mpdstate"
+mixer_type "software"
+max_playlist_length "32768"
+max_command_list_size "8192"
+max_output_buffer_size "16384"
+
+audio_output {
+	type "pulse"
+	name "mpd Pulse Audio Output"
+}
+
+audio_output { 
+         type                    "alsa"
+         name                    "My ALSA Device"
+         device                  "hw:0,0"     # optional
+         format                  "44100:16:2" # optional
+}

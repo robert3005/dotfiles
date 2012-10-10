@@ -1,0 +1,2 @@
+[[ -e "$HOME/.profile" ]] && . "$HOME/.profile" 
+[[ -e "$HOME/.profile" ]] && . "$HOME/.zalias"

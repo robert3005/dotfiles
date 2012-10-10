@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+sysThermal = File.new("/proc/acpi/ibm/thermal", "r").read.split(" ")
+
+#Index in "thermal"   Location
+#1                    CPU neighbourhood (also via ACPI THM0)
+#2                    Ultrabay
+#3                    Express card
+#4                    ATI graphics module
+#5                    Main battery (always around 50°C)
+#6                    n/a (probably ultrabay battery)
+#7                    Main Battery (fits about the value reported by smapi)
+#8                    n/a (probably ultrabay battery)
+#9                    Hard disc
+#10                   Intel graphics module
+#11                   Heatsink?
+#12                   n/a
+#13                   n/a
+#14                   n/a
+#15                   n/a
+puts "CPU:          #{sysThermal[1]} \xC2\xB0C"
+puts "Intel Card:   #{sysThermal[10]} \xC2\xB0C"
+puts "ATI card:     #{sysThermal[4]} \xC2\xB0C"
+puts "Battery:      #{sysThermal[7]} \xC2\xB0C"
+puts "Hard drive:   #{sysThermal[9]} \xC2\xB0C"
+puts "Heatsink:     #{sysThermal[11]} \xC2\xB0C"
+puts "Ultrabay:     #{sysThermal[2]} \xC2\xB0C"
+puts "ExpressCard:  #{sysThermal[3]} \xC2\xB0C"
+puts "Main battery: #{sysThermal[5]} \xC2\xB0C"

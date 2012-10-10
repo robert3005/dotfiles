@@ -1,0 +1,3 @@
+#!/bin/sh
+
+kdesudo kcmshell4 kcm_grub2

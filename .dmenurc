@@ -1,0 +1,1 @@
+DMENU='dmenu -i -fn -misc-fixed-*-*-*-*-*-*-*-*-*-*-iso10646-1 -nb #222222 -nf #888888 -sb #285577 -sf #ffffff'

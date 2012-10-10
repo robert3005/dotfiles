@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+def fetchRepos( dir )
+	forDir = File.absolute_path(ARGV[0])
+    threads = []
+
+    Dir.chdir(forDir)
+	Dir.foreach(forDir) { |filename|
+		if File.directory?(filename)
+			threads << Thread.new(filename) { |fileDirectory|
+              upRepo(File.absolute_path(fileDirectory))
+            }
+		end
+    }
+
+    threads.each{ |someThread| someThread.join  }
+
+end
+
+def upRepo( dir )
+	if File.directory?("#{dir}/.git")
+		system("git --git-dir=#{dir}/.git --work-tree=#{dir} pull")
+	elsif File.directory?("#{dir}/.svn")
+		system("svn up #{dir}")
+	elsif File.directory?("#{dir}/.hg")
+		system("hg -R #{dir} pull -u")
+	end
+end
+
+if __FILE__ == $0
+	fetchRepos(ARGV[0])
+end

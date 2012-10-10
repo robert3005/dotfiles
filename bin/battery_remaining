@@ -1,0 +1,2 @@
+#!/bin/bash
+cat /sys/devices/platform/smapi/BAT0/remaining_percent

@@ -1,0 +1,9 @@
+[beets]
+direcroty: ~/Music
+library: ~/musiclibrary.blb
+plugins: chroma embedart
+import_art: yes
+art_filename: folder
+
+[paths]
+default: $albumartist/[$year] $album/$albumartist - $album - $disc$track - $title

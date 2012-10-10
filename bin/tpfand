@@ -1,0 +1,135 @@
+#!/usr/bin/python
+import os, time, sys, subprocess
+from subprocess import *
+import logging
+import datetime
+
+# Change vars:
+LOG_FILENAME = "/tmp/tpfan_log.txt"
+watchdogTIME = "5" # >0 default 5
+maxTEMP=70.0 # > 60
+minTEMP=65.0 # < maxTEMP
+critTEMP=95.0 # <100
+deamonTIME=5.0 # >=5
+verbose=0 # 0 or 1
+#####################
+
+# Do not change
+fanspeedup =0
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+
+while 1:
+	temp = []
+	# check sensors in laptop # not systen specific! great
+####   cat /proc/acpi/ibm/thermal | awk '{ for (i=2; i<=NF; i++) printf("%s\n" , $i)}'
+	st1="cat /proc/acpi/ibm/thermal | awk '{ for (i=2; i<=NF; i++) printf("
+	st1=st1+('"%s\\n" , $i)}')+("'")
+	f=os.popen(st1)
+	for i in f.readlines():
+		intw = float(i)
+		temp.append(intw)
+	#print temp
+	#  check cpu sensors # not systen specific! great
+	f=os.popen("sensors 2>/dev/null | grep Core | awk '{print $3}' | sed s/+// | sed 's/..$//'")
+	for i in f.readlines():
+		intw = float(i)
+		temp.append(intw)
+	#print "control"
+	#print temp
+	logging.info(" ---------------------------------------------------------------------")
+	tmp=max(temp)
+	now = datetime.datetime.now()
+	now2=now.strftime("%Y/%m/%d %H:%M:%S")
+	if verbose==1 or fanspeedup==1:
+		if fanspeedup==1:
+			logging.info(" 	  Fan on max speed!")
+		logging.info(" 	  Time:	 	%s",now2)
+		logging.info(" Temperature:		%f",tmp)
+
+
+	if fanspeedup==1:
+		f=os.popen("cat /proc/acpi/ibm/fan | head -n 3 | grep speed | awk '{print $2}'")
+		u =f.readline()
+		logging.info("RPM: 	%s",u)
+
+	if fanspeedup ==0:
+		#try:
+			#test autohandling
+		f=os.popen("cat /proc/acpi/ibm/fan | head -n 3 | grep level | awk '{print $2}'")
+		val =f.readline()
+		val2=str(val)
+		if val2 == "auto\n":
+			logging.info(" -> Temperature save.	-> Bios can handle")
+			logging.info(" Auto-Watchdog:	active")
+			if verbose==1:
+				f=os.popen("cat /proc/acpi/ibm/fan | head -n 3 |tail -n 2")
+				for i in f.readlines():
+					logging.info(i, )
+
+		#except ValueError:
+		else:
+			logging.error(" Auto-Watchdog:	not active!!!!")
+			logging.info(" Try to activate bios watchdog....")
+			if watchdogTIME <=0:
+					watchdogTIME=3
+			try:
+				retcode = call("echo" + " watchdog "+ watchdogTIME +" > /proc/acpi/ibm/fan", shell=True)
+				if retcode ==0:
+					logging.info("Success: Bios-Watchdog now active")
+				else:
+					logging.error(" Error can't activate watchdog!! Exit status:"+str(retcode))
+					logging.error(subprocess.call(["cat","/proc/acpi/ibm/fan"]))
+			except OSError, e:
+					logging.error(" Are you root ? Execution failed:", e)
+
+	if fanspeedup==1 and max(temp) >=critTEMP:
+
+		logging.critical(" >>Warning critical temp! Will shutdown.")
+		call("halt"+"", shell=True)
+
+
+	if max(temp) >=maxTEMP  and fanspeedup ==0:
+		fanspeedup =1
+
+		logging.info(" -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-")
+		logging.info(" ->>Temperature not save	->Bios can't handle!")
+		logging.info(" Disable watchdog for speed up ...")
+
+		try:
+			retcode = call("echo" + " watchdog 0 > /proc/acpi/ibm/fan", shell=True)
+			if retcode ==0:
+					logging.info(" Watchdog disabled")
+					logging.info(" Speed fan up to max RPM ...")
+			else:
+					logging.error(" Error watchdog still runnning!! Exit status:"+retcode)
+					logging.error(subprocess.call(["cat","/proc/acpi/ibm/fan"]))
+
+		except OSError, e:
+				logging.error(" Are you root ? Execution failed:", e)
+
+		try:
+			retcode = call("echo" + " level full-speed > /proc/acpi/ibm/fan", shell=True)
+			if retcode ==0:
+				logging.info(" Fan should speed up .....")
+			else:
+				logging.error(" Error could not set fan to max speed!! Exit status:"+retcode)
+				logging.error(subprocess.call(["cat","/proc/acpi/ibm/fan"]))
+
+		except OSError, e:
+				print >>sys.stderr, " Are you root ? Execution failed:", e
+
+	if fanspeedup==1 and max(temp) < minTEMP:
+		fanspeedup=0
+		logging.info(" -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-")
+		logging.info(" Re-Enable watchdog for bios fan control")
+		try:
+			fanspeedup=0
+			retcode = call("echo" + " watchdog "+ watchdogTIME +" > /proc/acpi/ibm/fan", shell=True)
+			if retcode ==0:
+					logging.info(" Watchdog is re-enabled")
+			else:
+					logging.error(" Error can not re enable watchdog!! Exit status:"+retcode)
+					logging.error(subprocess.call(["cat","/proc/acpi/ibm/fan"]))
+		except OSError, e:
+				logging.error(" Are you root ? Execution failed:", e)
+	time.sleep(deamonTIME)

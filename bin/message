@@ -1,0 +1,2 @@
+#!/bin/bash
+dzen2 -x 0 -y 0 -w 400 -ta r -bg black -fg '#FFFFFF' -fn -misc-fixed-*-*-*-*-*-*-*-*-*-*-iso10646-1 -p 2
