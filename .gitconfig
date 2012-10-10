@@ -1,0 +1,80 @@
+[color]
+  ui = auto
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+[user]
+  logallrefupdates = true
+[core]
+  autocrlf = input
+  safecrlf = false
+  excludesfile = ~/.gitignore_global
+  editor = mvim -g -f
+[branch]
+  # auto-adds the --track flag to git branch. Helps out arc (for Phabricator).
+  autosetupmerge = always
+  autosetuprebase = always
+[alias]
+  st = status
+  ci = commit
+  br = branch
+  co = checkout
+  sw = switch
+  rs = restore
+  df = diff
+  dfs = diff --staged
+  dc = diff --cached
+  lg = log -p
+  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  ls = ls-files
+  pull = pull --rebase
+  graph = log --graph --decorate --oneline --pretty=format:%h%x20%Cgreen%d%x20%Cred%an%x20%Cblue%ad%x20%Creset%s --all --full-history --date=short
+  outgoing = log origin/master..HEAD
+  incoming = "!git fetch $1; git log HEAD..$1/master"
+  weekly = !sh -c 'git log --author=robertk@palantir.com --since=`date -d last\\ monday +%Y/%m/%d`'
+  hlog = log --date-order --all --graph --format='%C(green)%h %Creset%C(yellow)%an%Creset %C(blue bold)%ar%Creset %C(red bold)%d%Creset %s'
+  xlog = log --date-order --graph --pretty=format:'%C(green)%h %Creset%C(yellow)%an%Creset %C(blue bold)%ar%Creset %C(red bold)%d%Creset %s'
+
+  # Show files ignored by git:
+  ign = ls-files -o -i --exclude-standard
+
+  # Ignore whitespace changes
+  bw = blame -w
+
+[merge]
+  # Always show a diffstat at the end of a merge
+  stat = true
+
+[diff]
+  # Use mnemonic prefixes (index, work tree, commit, object) instead of the standard a and b notation
+  mnemonicprefix = true
+
+  # Detect renames as well as copies
+  renames = copies
+  compactionHeuristic = true
+
+[rerere]
+  enabled = 1
+
+[push]
+  default = simple
+  autoSetupRemote = true
+[filter "lfs"]
+  required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+
+[init]
+  defaultBranch = develop

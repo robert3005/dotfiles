@@ -1,0 +1,5 @@
+alias g="git"
+alias gd="./godelw"
+alias gw="./gradlew"
+alias cat="bat"
+eval $(hub alias -s)
