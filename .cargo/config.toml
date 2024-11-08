@@ -1,0 +1,6 @@
+[env]
+PYO3_PYTHON = "/Users/robert/.pyenv/versions/3.11.10/bin/python"
+PYO3_ENVIRONMENT_SIGNATURE = "cpython-3.10-64bit"
+
+[unstable]
+gc = true
